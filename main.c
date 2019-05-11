@@ -28,10 +28,10 @@ hash_t *hashes = NULL;
 int max_hashes = 1;
 int num_hashes = 0;
 
-// number of guesses required, specified by argv[1]
-int num_guesses = -1;
 // number of correct guesses
 int num_guessed = 0;
+// number of guesses required, specified by argv[1]
+int num_guesses = -1;
 
 /*----------------------------------------------------------------------------*/
 
