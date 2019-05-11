@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
     fclose(fp);
 
     pwd_length = PWD4_LENGTH;
-    BYTE guess[pwd_length];
+    BYTE guess[pwd_length + 1];
+    memset(guess, 0, sizeof(guess));
     enum_guesses(guess, 0);
 
     return 0;
@@ -69,7 +70,7 @@ void check(BYTE *guess) {
 
 /**
 * Enumerate all guesses in the required ASCII range.
-* - guess: one guess in each loop
+* - guess: grouped characters to be hashed
 * - depth: the depth of the nested loop
 *
 * Reference: https://stackoverflow.com/questions/19406290
