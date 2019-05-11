@@ -70,7 +70,7 @@ void check(BYTE *guess) {
 
 /**
 * Enumerate all guesses in the required ASCII range.
-* - guess: one guess in each loop
+* - guess: grouped characters to be hashed
 * - depth: the depth of the nested loop
 *
 * Reference: https://stackoverflow.com/questions/19406290
