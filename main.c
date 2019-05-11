@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
     fclose(fp);
 
     pwd_length = PWD4_LENGTH;
-    BYTE guess[pwd_length];
+    BYTE guess[pwd_length + 1];
+    memset(guess, 0, sizeof(guess));
     enum_guesses(guess, 0);
 
     return 0;
