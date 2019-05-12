@@ -13,7 +13,9 @@
 #define BUFFER_SIZE 2048
 
 #define PWD4SHA256 "pwd4sha256"
+#define PWD6SHA256 "pwd6sha256"
 #define PWD4_LENGTH 4
+#define PWD6_LENGTH 6
 
 typedef BYTE hash_t[SHA256_BLOCK_SIZE];
 
@@ -28,14 +30,13 @@ hash_t *hashes = NULL;
 int max_hashes = 1;
 int num_hashes = 0;
 
-// number of correct guesses
-int num_guessed = 0;
 // number of guesses required, specified by argv[1]
 int num_guesses = -1;
+int num_guessed = 0;
 
 /*----------------------------------------------------------------------------*/
 
-void read_hashes();
+void read_hashes(char *hshfile);
 void check_passwords(char *pwdfile);
 void enum_guesses(BYTE *guess, int depth, int max_depth);
 void check(BYTE *guess);
@@ -43,60 +44,34 @@ void check(BYTE *guess);
 /*----------------------------------------------------------------------------*/
 
 int main(int argc, char **argv) {
-    char *pwdfile = NULL;
-    char *hshfile = PWD4SHA256;
-
+    if (argc == 3) {
+        read_hashes(argv[2]);
+        check_passwords(argv[1]);
+        return 0;
+    }
     if (argc == 2) {
         num_guesses = atoi(argv[1]);
     }
 
-    if (argc == 3) {
-        pwdfile = argv[1];
-        hshfile = argv[2];
-    }
+    read_hashes(PWD4SHA256);
+    read_hashes(PWD6SHA256);
 
-    read_hashes(hshfile);
-
-    if (pwdfile) {
-        check_passwords(pwdfile);
-    } else {
-        BYTE guess[PWD4_LENGTH + 1];
-        memset(guess, 0, sizeof(guess));
-        enum_guesses(guess, 0, PWD4_LENGTH);
-    }
+    // BYTE guess[PWD4_LENGTH + 1];
+    // memset(guess, 0, sizeof(guess));
+    // enum_guesses(guess, 0, PWD4_LENGTH);
+    check_passwords("common_passwords.txt");
 
     return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 
-// read passwords in the provided file
-void check_passwords(char *pwdfile) {
-    FILE *fp = fopen(pwdfile, "r");
-    char *password = malloc(sizeof(char) * BUFFER_SIZE);
-    memset(password, 0, BUFFER_SIZE);
-
-    char c;
-    while((c = fgetc(fp)) != EOF) {
-        if (c == '\r' || c == '\n') {
-            if (strlen(password)) {
-                check((BYTE *)password);
-                memset(password, 0, strlen(password));
-            }
-            continue;
-        }
-        if (strlen(password) >= BUFFER_SIZE) {
-            password = realloc(password, sizeof(password) * 2);
-        }
-        password[strlen(password)] = c;
-    }
-}
-
-
 // read hash values in the provided file
-void read_hashes(char *filename) {
-    hashes = malloc(max_hashes * sizeof(hash_t));
-    FILE *fp = fopen(filename, "r");
+void read_hashes(char *hshfile) {
+    if (hashes == NULL) {
+        hashes = malloc(max_hashes * sizeof(hash_t));
+    }
+    FILE *fp = fopen(hshfile, "r");
     while (1) {
         if (num_hashes >= max_hashes) {
             max_hashes *= 2;
@@ -110,6 +85,28 @@ void read_hashes(char *filename) {
     fclose(fp);
 }
 
+// read passwords in the provided file
+void check_passwords(char *pwdfile) {
+    FILE *fp = fopen(pwdfile, "r");
+    char *password = malloc(sizeof(char) * BUFFER_SIZE);
+    memset(password, 0, BUFFER_SIZE);
+
+    char c;
+    while((c = fgetc(fp)) != EOF) {
+        if (c == '\r' || c == '\n') {
+            if (strlen(password) == PWD4_LENGTH || strlen(password) == PWD6_LENGTH) {
+                check((BYTE *)password);
+            }
+            memset(password, 0, strlen(password));
+            continue;
+        }
+        if (strlen(password) >= BUFFER_SIZE) {
+            password = realloc(password, sizeof(password) * 2);
+        }
+        password[strlen(password)] = c;
+    }
+}
+
 void check(BYTE *guess) {
     sha256_init(&ctx);
 	sha256_update(&ctx, guess, strlen((char *)guess));
@@ -117,10 +114,13 @@ void check(BYTE *guess) {
     for (int i = 0; i <= num_hashes; i++) {
         if (memcmp(hash_buff, hashes[i], SHA256_BLOCK_SIZE) == 0) {
             printf("%s %d\n", guess, i + 1);
-            if (++num_guessed == num_guesses) {
-                exit(EXIT_SUCCESS);
-            }
             break;
+        }
+    }
+    if (num_guesses != -1) {
+        printf("%s\n", guess);
+        if (++num_guessed == num_guesses) {
+            exit(EXIT_SUCCESS);
         }
     }
 }
