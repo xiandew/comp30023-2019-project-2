@@ -38,7 +38,7 @@ int num_guessed = 0;
 
 void read_hashes(char *hshfile);
 void check_passwords(char *pwdfile);
-void enum_guesses(BYTE *guess, int depth, int max_depth, char *charArr);
+void check_guesses(BYTE *guess, int depth, int max_depth, char *charArr);
 void check(BYTE *guess);
 
 /*----------------------------------------------------------------------------*/
@@ -87,10 +87,10 @@ int main(int argc, char **argv) {
 
     BYTE guess[PWD6_LENGTH + 1];
     memset(guess, 0, sizeof(guess));
-    // enum_guesses(guess, 0, PWD4_LENGTH);
+    check_guesses(guess, 0, PWD4_LENGTH, NULL);
 
     char *common_chars = get_chars("common_passwords.txt");
-    enum_guesses(guess, 0, PWD6_LENGTH, common_chars);
+    check_guesses(guess, 0, PWD6_LENGTH, common_chars);
 
     return 0;
 }
@@ -161,20 +161,21 @@ void check(BYTE *guess) {
 * - guess: grouped characters to be hashed
 * - depth: the current depth of the nested loop
 * - max_depth: max depth of the nested loop
+* - charArr: candidate characters
 * Reference: https://stackoverflow.com/questions/19406290
 */
-void enum_guesses(BYTE *guess, int depth, int max_depth, char *charArr) {
+void check_guesses(BYTE *guess, int depth, int max_depth, char *charArr) {
     if(depth == max_depth) {
         check(guess);
     } else {
         if (charArr) {
             for (int i = 0; i < strlen(charArr); i++) {
                 guess[depth] = charArr[i];
-                enum_guesses(guess, depth + 1, max_depth, charArr);
+                check_guesses(guess, depth + 1, max_depth, charArr);
             }
         } else {
             for (guess[depth] = LOWER; guess[depth] <= UPPER; guess[depth]++) {
-                enum_guesses(guess, depth + 1, max_depth, charArr);
+                check_guesses(guess, depth + 1, max_depth, charArr);
             }
         }
     }
