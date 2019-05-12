@@ -10,7 +10,7 @@ typedef struct {
     int f;
 } charfreq_t;
 
-char *get_chars(char *filename);
+char *get_chars(char **filenames, int numfiles);
 int compar(const void *a, const void *b);
 
 #endif
