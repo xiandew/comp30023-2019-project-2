@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "sha256.h"
-#include "combinationUtil.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -39,7 +38,7 @@ int num_guessed = 0;
 
 void read_hashes(char *hshfile);
 void check_passwords(char *pwdfile);
-void enum_guesses(BYTE *guess, int depth, int max_depth);
+void enum_guesses(BYTE *guess, int depth, int max_depth, char *charArr);
 void check(BYTE *guess);
 
 /*----------------------------------------------------------------------------*/
@@ -86,12 +85,12 @@ int main(int argc, char **argv) {
     read_hashes(PWD4SHA256);
     read_hashes(PWD6SHA256);
 
-    // BYTE guess[PWD4_LENGTH + 1];
-    // memset(guess, 0, sizeof(guess));
+    BYTE guess[PWD6_LENGTH + 1];
+    memset(guess, 0, sizeof(guess));
     // enum_guesses(guess, 0, PWD4_LENGTH);
 
     char *common_chars = get_chars("common_passwords.txt");
-    checkCombination(common_chars, strlen(common_chars), 6, check);
+    enum_guesses(guess, 0, PWD6_LENGTH, common_chars);
 
     return 0;
 }
@@ -164,12 +163,19 @@ void check(BYTE *guess) {
 * - max_depth: max depth of the nested loop
 * Reference: https://stackoverflow.com/questions/19406290
 */
-void enum_guesses(BYTE *guess, int depth, int max_depth) {
+void enum_guesses(BYTE *guess, int depth, int max_depth, char *charArr) {
     if(depth == max_depth) {
         check(guess);
     } else {
-        for (guess[depth] = LOWER; guess[depth] <= UPPER; guess[depth]++) {
-            enum_guesses(guess, depth + 1, max_depth);
+        if (charArr) {
+            for (int i = 0; i < strlen(charArr); i++) {
+                guess[depth] = charArr[i];
+                enum_guesses(guess, depth + 1, max_depth, charArr);
+            }
+        } else {
+            for (guess[depth] = LOWER; guess[depth] <= UPPER; guess[depth]++) {
+                enum_guesses(guess, depth + 1, max_depth, charArr);
+            }
         }
     }
 }
