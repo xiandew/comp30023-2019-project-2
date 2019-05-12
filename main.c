@@ -87,10 +87,11 @@ int main(int argc, char **argv) {
 
     BYTE guess[PWD6_LENGTH + 1];
     memset(guess, 0, sizeof(guess));
-    check_guesses(guess, 0, PWD4_LENGTH, NULL);
 
     char *common_chars = get_chars("common_passwords.txt");
     check_guesses(guess, 0, PWD6_LENGTH, common_chars);
+
+    check_guesses(guess, 0, PWD4_LENGTH, NULL);
 
     return 0;
 }
