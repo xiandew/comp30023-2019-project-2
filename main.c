@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
     check_guesses(guess, 0, PWD6_LENGTH, common_chars);
 
     check_guesses(guess, 0, PWD4_LENGTH, NULL);
+    check_guesses(guess, 0, PWD6_LENGTH, NULL);
 
     return 0;
 }
