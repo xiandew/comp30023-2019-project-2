@@ -34,6 +34,7 @@ int num_hashes = 0;
 // number of guesses required, specified by argv[1]
 int num_guesses = -1;
 int num_guessed = 0;
+int num_cracked = 0;
 
 /*----------------------------------------------------------------------------*/
 
@@ -60,11 +61,16 @@ int main(int argc, char **argv) {
     BYTE guess[PWD6_LENGTH + 1];
     memset(guess, 0, sizeof(guess));
 
-    char *common_chars = get_chars("common_passwords.txt");
+    char *filenames[] = {"common_passwords.txt", "found_pwds.txt"};
+    char *common_chars = get_chars(filenames, 2);
     check_guesses(guess, 0, PWD6_LENGTH, common_chars);
 
-    check_guesses(guess, 0, PWD4_LENGTH, NULL);
-    check_guesses(guess, 0, PWD6_LENGTH, NULL);
+    check_guesses(guess, 0, PWD4_LENGTH, common_chars);
+
+    if (num_cracked < 30) {
+        // brute force for passwords of length 6
+        check_guesses(guess, 0, PWD6_LENGTH, NULL);
+    }
 
     free(common_chars);
     free(hashes);
@@ -121,13 +127,14 @@ void check(BYTE *guess) {
     sha256_final(&ctx, hash_buff);
     for (int i = 0; i <= num_hashes; i++) {
         if (memcmp(hash_buff, hashes[i], SHA256_BLOCK_SIZE) == 0) {
+            num_cracked++;
             printf("%s %d\n", guess, i + 1);
             break;
         }
     }
     if (num_guesses != -1) {
         printf("%s\n", guess);
-        if (++num_guessed == num_guesses) {
+        if (num_guesses == 0 || ++num_guessed == num_guesses) {
             exit(EXIT_SUCCESS);
         }
     }
