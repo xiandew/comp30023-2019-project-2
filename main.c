@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "sha256.h"
+#include "combinationUtil.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -43,6 +44,35 @@ void check(BYTE *guess);
 
 /*----------------------------------------------------------------------------*/
 
+char *get_chars(char *filename) {
+    int max_chars = 1;
+    int num_chars = 0;
+    char *chars = malloc((max_chars + 1) * sizeof(char));
+
+    FILE *fp = fopen(filename, "r");
+    char c;
+    while((c = fgetc(fp)) != EOF) {
+        if (c == '\r' || c == '\n') {
+            continue;
+        }
+        int found = 0;
+        for (int i = 0; i < num_chars; i++) {
+            if (chars[i] == c) {
+                found = 1;
+            }
+        }
+        if (!found) {
+            if (num_chars >= max_chars) {
+                max_chars *= 2;
+                chars = realloc(chars, (max_chars + 1) * sizeof(char));
+            }
+            chars[num_chars++] = c;
+        }
+    }
+    chars[num_chars] = 0;
+    return chars;
+}
+
 int main(int argc, char **argv) {
     if (argc == 3) {
         read_hashes(argv[2]);
@@ -59,7 +89,9 @@ int main(int argc, char **argv) {
     // BYTE guess[PWD4_LENGTH + 1];
     // memset(guess, 0, sizeof(guess));
     // enum_guesses(guess, 0, PWD4_LENGTH);
-    check_passwords("common_passwords.txt");
+
+    char *common_chars = get_chars("common_passwords.txt");
+    checkCombination(common_chars, strlen(common_chars), 6, check);
 
     return 0;
 }
