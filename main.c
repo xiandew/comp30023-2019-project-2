@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "sha256.h"
+#include "charfreq.h"
 
 /*----------------------------------------------------------------------------*/
 
@@ -43,35 +44,6 @@ void check(BYTE *guess);
 
 /*----------------------------------------------------------------------------*/
 
-char *get_chars(char *filename) {
-    int max_chars = 1;
-    int num_chars = 0;
-    char *chars = malloc((max_chars + 1) * sizeof(char));
-
-    FILE *fp = fopen(filename, "r");
-    char c;
-    while((c = fgetc(fp)) != EOF) {
-        if (c == '\r' || c == '\n') {
-            continue;
-        }
-        int found = 0;
-        for (int i = 0; i < num_chars; i++) {
-            if (chars[i] == c) {
-                found = 1;
-            }
-        }
-        if (!found) {
-            if (num_chars >= max_chars) {
-                max_chars *= 2;
-                chars = realloc(chars, (max_chars + 1) * sizeof(char));
-            }
-            chars[num_chars++] = c;
-        }
-    }
-    chars[num_chars] = 0;
-    return chars;
-}
-
 int main(int argc, char **argv) {
     if (argc == 3) {
         read_hashes(argv[2]);
@@ -94,6 +66,8 @@ int main(int argc, char **argv) {
     check_guesses(guess, 0, PWD4_LENGTH, NULL);
     check_guesses(guess, 0, PWD6_LENGTH, NULL);
 
+    free(common_chars);
+    free(hashes);
     return 0;
 }
 
@@ -138,6 +112,7 @@ void check_passwords(char *pwdfile) {
         }
         password[strlen(password)] = c;
     }
+    free(password);
 }
 
 void check(BYTE *guess) {
