@@ -4,8 +4,8 @@ CC     = gcc
 CFLAGS = -Wall -std=c99
 EXE    = crack
 OBJDIR = bin
-OBJ    = $(addprefix $(OBJDIR)/, main.o sha256.o combinationUtil.o permute.o)
-DEPS   = sha256.h combinationUtil.h permute.h
+OBJ    = $(addprefix $(OBJDIR)/, main.o sha256.o)
+DEPS   = sha256.h
 
 # top (default) targets
 all: $(EXE)
