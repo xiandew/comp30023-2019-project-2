@@ -65,9 +65,11 @@ int main(int argc, char **argv) {
     char *common_chars = get_chars(filenames, 2);
     check_guesses(guess, 0, PWD6_LENGTH, common_chars);
 
+    memset(guess, 0, sizeof(guess));
     check_guesses(guess, 0, PWD4_LENGTH, common_chars);
 
     if (num_cracked < 30) {
+        memset(guess, 0, sizeof(guess));
         // brute force for passwords of length 6
         check_guesses(guess, 0, PWD6_LENGTH, NULL);
     }
