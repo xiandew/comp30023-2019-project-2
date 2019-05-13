@@ -134,12 +134,6 @@ void check(BYTE *guess) {
             break;
         }
     }
-    if (num_guesses != -1) {
-        printf("%s\n", guess);
-        if (num_guesses == 0 || ++num_guessed == num_guesses) {
-            exit(EXIT_SUCCESS);
-        }
-    }
 }
 
 /**
@@ -152,7 +146,14 @@ void check(BYTE *guess) {
 */
 void check_guesses(BYTE *guess, int depth, int max_depth, char *charArr) {
     if(depth == max_depth) {
-        check(guess);
+        if (num_guesses != -1) {
+            printf("%s\n", guess);
+            if (num_guesses == 0 || ++num_guessed == num_guesses) {
+                exit(EXIT_SUCCESS);
+            }
+        } else {
+            check(guess);
+        }
     } else {
         if (charArr) {
             for (int i = 0; i < strlen(charArr); i++) {
