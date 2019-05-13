@@ -65,9 +65,11 @@ int main(int argc, char **argv) {
     char *common_chars = get_chars(filenames, 2);
     check_guesses(guess, 0, PWD6_LENGTH, common_chars);
 
+    memset(guess, 0, sizeof(guess));
     check_guesses(guess, 0, PWD4_LENGTH, common_chars);
 
     if (num_cracked < 30) {
+        memset(guess, 0, sizeof(guess));
         // brute force for passwords of length 6
         check_guesses(guess, 0, PWD6_LENGTH, NULL);
     }
@@ -132,12 +134,6 @@ void check(BYTE *guess) {
             break;
         }
     }
-    if (num_guesses != -1) {
-        printf("%s\n", guess);
-        if (num_guesses == 0 || ++num_guessed == num_guesses) {
-            exit(EXIT_SUCCESS);
-        }
-    }
 }
 
 /**
@@ -150,7 +146,14 @@ void check(BYTE *guess) {
 */
 void check_guesses(BYTE *guess, int depth, int max_depth, char *charArr) {
     if(depth == max_depth) {
-        check(guess);
+        if (num_guesses != -1) {
+            printf("%s\n", guess);
+            if (num_guesses == 0 || ++num_guessed == num_guesses) {
+                exit(EXIT_SUCCESS);
+            }
+        } else {
+            check(guess);
+        }
     } else {
         if (charArr) {
             for (int i = 0; i < strlen(charArr); i++) {
