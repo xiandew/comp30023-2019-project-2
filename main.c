@@ -58,6 +58,11 @@ int main(int argc, char **argv) {
     read_hashes(PWD4SHA256);
     read_hashes(PWD6SHA256);
 
+    // dictionary search
+    check_passwords("common_passwords.txt");
+
+
+    // small range exhaustive search
     BYTE guess[PWD6_LENGTH + 1];
     memset(guess, 0, sizeof(guess));
 
@@ -68,11 +73,12 @@ int main(int argc, char **argv) {
     memset(guess, 0, sizeof(guess));
     check_guesses(guess, 0, PWD4_LENGTH, common_chars);
 
-    if (num_cracked < 30) {
-        memset(guess, 0, sizeof(guess));
-        // brute force for passwords of length 6
-        check_guesses(guess, 0, PWD6_LENGTH, NULL);
-    }
+
+    // full range exhaustive search
+    memset(guess, 0, sizeof(guess));
+    check_guesses(guess, 0, PWD4_LENGTH, NULL);
+    check_guesses(guess, 0, PWD6_LENGTH, NULL);
+
 
     free(common_chars);
     free(hashes);
@@ -124,6 +130,13 @@ void check_passwords(char *pwdfile) {
 }
 
 void check(BYTE *guess) {
+    if (num_guesses != -1) {
+        printf("%s\n", guess);
+        if (num_guesses == 0 || ++num_guessed == num_guesses) {
+            exit(EXIT_SUCCESS);
+        }
+        return;
+    }
     sha256_init(&ctx);
 	sha256_update(&ctx, guess, strlen((char *)guess));
     sha256_final(&ctx, hash_buff);
@@ -146,14 +159,7 @@ void check(BYTE *guess) {
 */
 void check_guesses(BYTE *guess, int depth, int max_depth, char *charArr) {
     if(depth == max_depth) {
-        if (num_guesses != -1) {
-            printf("%s\n", guess);
-            if (num_guesses == 0 || ++num_guessed == num_guesses) {
-                exit(EXIT_SUCCESS);
-            }
-        } else {
-            check(guess);
-        }
+        check(guess);
     } else {
         if (charArr) {
             for (int i = 0; i < strlen(charArr); i++) {
