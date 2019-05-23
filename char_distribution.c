@@ -103,17 +103,26 @@ void get_char_dist(char *dict) {
 }
 
 int check_char_dist(char *guess, int freq) {
-    int qualified = 0;
+    int qualified = 1;
     for (int i = 0; i < (strlen(guess) - 1); i++) {
         for (int j = 0; j < n; j++) {
             if (chardist[j].c == guess[i]) {
+                int nb_found = 0;
                 for (int k = 0; k < chardist[j].n_nb; k++) {
                     charfreq_t nb = chardist[j].nb[k];
-                    if (nb.c == guess[j] && nb.f >= freq) {
-                        qualified = 1;
-                        return qualified;
+                    if (nb.c == guess[i + 1]){
+                        nb_found = 1;
+                        if (nb.f < freq) {
+                            qualified = 0;
+                        }
                     }
                 }
+                if (!nb_found) {
+                    qualified = 0;
+                }
+            }
+            if (!qualified) {
+                return qualified;
             }
         }
     }

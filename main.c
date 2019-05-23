@@ -19,7 +19,7 @@
 #define DICTIONARY "common_passwords.txt"
 // minimum frequency of a char appearing next to another char for a word to be
 // good guess
-#define MIN_FREQ 30
+#define MIN_FREQ 500
 
 typedef BYTE hash_t[SHA256_BLOCK_SIZE];
 
@@ -132,8 +132,7 @@ void small_range_search(int len) {
     BYTE guess[len + 1];
     memset(guess, 0, len + 1);
 
-    printf("%s\n", dict_chars);
-    // small_range_check(guess, 0, len);
+    small_range_check(guess, 0, len);
 
     free_char_dist();
 }
@@ -179,6 +178,7 @@ void check(BYTE *guess) {
     if (num_guesses != -1) {
         printf("%s\n", guess);
         if (num_guesses == 0 || ++num_guessed == num_guesses) {
+            free_char_dist();
             exit(EXIT_SUCCESS);
         }
         return;
