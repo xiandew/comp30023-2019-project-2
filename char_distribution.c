@@ -1,9 +1,5 @@
 #include "char_distribution.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 int max = 1;
 int n = 0;
 chardist_t *chardist = NULL;

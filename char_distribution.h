@@ -1,6 +1,10 @@
 #ifndef CHAR_DISTRIBUTION_H
 #define CHAR_DISTRIBUTION_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define BUFFER_SIZE 2048
 
 typedef struct {
