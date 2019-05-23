@@ -22,7 +22,10 @@ typedef struct {
     charfreq_t *nb;
 } chardist_t;
 
-chardist_t *get_char_dist(char *dict);
-void free_char_dist(chardist_t *chardist);
+void get_char_dist(char *dict);
+int check_char_dist(char *guess, int freq);
+void free_char_dist();
+
+extern char *dict_chars;
 
 #endif
