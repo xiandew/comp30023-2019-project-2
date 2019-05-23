@@ -1,11 +1,16 @@
 #include "char_distribution.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 int max = 1;
 int n = 0;
 chardist_t *chardist = NULL;
+char *dict_chars = NULL;
 
 // get characters in a file, sorted by frequencies
-chardist_t *get_char_dist(char *dict) {
+void get_char_dist(char *dict) {
     chardist = malloc(max * sizeof(chardist_t));
 
     FILE *fp = fopen(dict, "r");
@@ -94,15 +99,33 @@ chardist_t *get_char_dist(char *dict) {
     }
     free(word);
 
-    return chardist;
+    char *dict_chars = malloc(sizeof(char) * (n + 1));
+    memset(dict_chars, 0, n + 1);
+    for (int i = 0; i < n; i++) {
+        dict_chars[i] = chardist[i].c;
+    }
 }
 
-void free_char_dist(chardist_t *chardist) {
-    for (int i = 0; i < n; i++) {
-        printf("%c\n", chardist[i].c);
-        for(int j = 0; j < chardist[i].n_nb; j++) {
-            printf("   %c %d\n", chardist[i].nb[j].c, chardist[i].nb[j].f);
+int check_char_dist(char *guess, int freq) {
+    int qualified = 0;
+    for (int i = 0; i < (strlen(guess) - 1); i++) {
+        for (int j = 0; j < n; j++) {
+            if (chardist[j].c == guess[i]) {
+                for (int k = 0; k < chardist[j].n_nb; k++) {
+                    charfreq_t nb = chardist[j].nb[k];
+                    if (nb.c == guess[j] && nb.f >= freq) {
+                        qualified = 1;
+                        return qualified;
+                    }
+                }
+            }
         }
+    }
+    return qualified;
+}
+
+void free_char_dist() {
+    for (int i = 0; i < n; i++) {
         free(chardist[i].nb);
     }
     free(chardist);

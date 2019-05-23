@@ -17,6 +17,9 @@
 #define PWD6_LENGTH 6
 
 #define DICTIONARY "common_passwords.txt"
+// minimum frequency of a char appearing next to another char for a word to be
+// good guess
+#define MIN_FREQ 30
 
 typedef BYTE hash_t[SHA256_BLOCK_SIZE];
 
@@ -40,8 +43,9 @@ int num_cracked = 0;
 
 void read_hashes(char *hshfile);
 void dictionary_search(char *dict, int len);
-void small_range_search(char *dict);
-void full_range_search();
+void small_range_search(int len);
+void small_range_check(BYTE *guess, int depth, int max_depth);
+void full_range_search(int len);
 void full_range_check(BYTE *guess, int depth, int max_depth);
 void check(BYTE *guess);
 
@@ -57,31 +61,25 @@ int main(int argc, char **argv) {
         num_guesses = atoi(argv[1]);
     }
 
-    free_char_dist(get_char_dist(DICTIONARY));
-    return 0;
+    read_hashes(PWD4SHA256);
+    read_hashes(PWD6SHA256);
 
-    // read_hashes(PWD4SHA256);
-    // read_hashes(PWD6SHA256);
-    //
-    // // search for passwords of 6 length
-    // // dictionary search
-    // dictionary_search(DICTIONARY, 6);
-    //
-    // // small range exhaustive search
-    // small_range_search(DICTIONARY);
-    //
-    // // full range exhaustive search
-    // memset(guess, 0, sizeof(guess));
-    // check_guesses(guess, 0, PWD6_LENGTH, NULL);
-    //
-    // // search for passwords of 4 length
-    // // full range exhaustive search
-    // memset(guess, 0, sizeof(guess));
-    // check_guesses(guess, 0, PWD4_LENGTH, NULL);
-    //
-    // free(common_chars);
-    // free(hashes);
-    // return 0;
+    // search for passwords of 6 length
+    // dictionary search
+    dictionary_search(DICTIONARY, PWD6_LENGTH);
+
+    // small range exhaustive search
+    small_range_search(PWD6_LENGTH);
+
+    // full range exhaustive search
+    full_range_search(PWD6_LENGTH);
+
+    // search for passwords of 4 length
+    // full range exhaustive search
+    full_range_search(PWD4_LENGTH);
+
+    free(hashes);
+    return 0;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -128,23 +126,36 @@ void dictionary_search(char *dict, int len) {
     free(word);
 }
 
-void small_range_search(char *dict) {
-    // BYTE guess[PWD6_LENGTH + 1];
-    // memset(guess, 0, sizeof(guess));
-    //
-    // char *common_chars = get_chars(DICTIONARY);
-    // check_guesses(guess, 0, PWD6_LENGTH, common_chars);
+void small_range_search(int len) {
+    get_char_dist(DICTIONARY);
+
+    BYTE guess[len + 1];
+    memset(guess, 0, len + 1);
+
+    printf("%s\n", dict_chars);
+    // small_range_check(guess, 0, len);
+
+    free_char_dist();
 }
 
-void small_range_check(BYTE *guess, int depth, int max_depth, char *charArr) {
-    // if(depth == max_depth) {
-    //     check(guess);
-    // } else {
-    //     for (int i = 0; i < strlen(charArr); i++) {
-    //         guess[depth] = charArr[i];
-    //         check_guesses(guess, depth + 1, max_depth, charArr);
-    //     }
-    // }
+void small_range_check(BYTE *guess, int depth, int max_depth) {
+    if(depth == max_depth) {
+        if (check_char_dist((char *)guess, MIN_FREQ)) {
+            check(guess);
+        }
+    } else {
+        for (int i = 0; i < strlen(dict_chars); i++) {
+            guess[depth] = dict_chars[i];
+            small_range_check(guess, depth + 1, max_depth);
+        }
+    }
+}
+
+void full_range_search(int len) {
+    BYTE guess[len + 1];
+    memset(guess, 0, len + 1);
+
+    full_range_check(guess, 0, len);
 }
 
 /**
