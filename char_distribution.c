@@ -95,7 +95,7 @@ void get_char_dist(char *dict) {
     }
     free(word);
 
-    char *dict_chars = malloc(sizeof(char) * (n + 1));
+    dict_chars = malloc(sizeof(char) * (n + 1));
     memset(dict_chars, 0, n + 1);
     for (int i = 0; i < n; i++) {
         dict_chars[i] = chardist[i].c;
