@@ -7,19 +7,12 @@
 
 /*----------------------------------------------------------------------------*/
 
-// ASCII bounds
-#define LOWER 32
-#define UPPER 126
-
 #define PWD4SHA256 "pwd4sha256"
 #define PWD6SHA256 "pwd6sha256"
 #define PWD4_LENGTH 4
 #define PWD6_LENGTH 6
 
 #define DICTIONARY "common_passwords.txt"
-// minimum frequency of a char appearing next to another char for a word to be
-// good guess
-#define MIN_FREQ 200
 
 typedef BYTE hash_t[SHA256_BLOCK_SIZE];
 
@@ -66,7 +59,7 @@ int main(int argc, char **argv) {
 
     // search for passwords of 6 length
     // dictionary search
-    dictionary_search(DICTIONARY, PWD6_LENGTH);
+    // dictionary_search(DICTIONARY, PWD6_LENGTH);
 
     // small range exhaustive search
     small_range_search(PWD6_LENGTH);
@@ -126,6 +119,10 @@ void dictionary_search(char *dict, int len) {
     free(word);
 }
 
+/**
+ * This function takes the length of required passwords (4 or 6) and then
+ * generate and check them. It will generate 1804995 (approx.) passwords.
+ */
 void small_range_search(int len) {
     get_char_dist(DICTIONARY);
 
@@ -133,19 +130,17 @@ void small_range_search(int len) {
     memset(guess, 0, len + 1);
 
     small_range_check(guess, 0, len);
-
-    free_char_dist();
 }
 
 void small_range_check(BYTE *guess, int depth, int max_depth) {
-    if(depth == max_depth) {
-        if (check_char_dist((char *)guess, MIN_FREQ)) {
-            check(guess);
-        }
+    if (depth == max_depth && check_char_dist((char *)guess, depth)) {
+        check(guess);
     } else {
         for (int i = 0; i < strlen(dict_chars); i++) {
             guess[depth] = dict_chars[i];
-            small_range_check(guess, depth + 1, max_depth);
+            if (check_char_dist((char *)guess, depth + 1)) {
+                small_range_check(guess, depth + 1, max_depth);
+            }
         }
     }
 }
@@ -158,12 +153,12 @@ void full_range_search(int len) {
 }
 
 /**
-* Enumerate all guesses in the required ASCII range (32~126).
-* - guess: grouped characters to be hashed
-* - depth: the current depth of the nested loop
-* - max_depth: max depth of the nested loop
-* Reference: https://stackoverflow.com/questions/19406290
-*/
+ * Enumerate all guesses in the required ASCII range (32~126).
+ * - guess: grouped characters to be hashed
+ * - depth: the current depth of the nested loop
+ * - max_depth: max depth of the nested loop
+ * Reference: https://stackoverflow.com/questions/19406290
+ */
 void full_range_check(BYTE *guess, int depth, int max_depth) {
     if(depth == max_depth) {
         check(guess);
@@ -178,7 +173,6 @@ void check(BYTE *guess) {
     if (num_guesses != -1) {
         printf("%s\n", guess);
         if (num_guesses == 0 || ++num_guessed == num_guesses) {
-            free_char_dist();
             exit(EXIT_SUCCESS);
         }
         return;
