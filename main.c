@@ -19,7 +19,7 @@
 #define DICTIONARY "common_passwords.txt"
 // minimum frequency of a char appearing next to another char for a word to be
 // good guess
-#define MIN_FREQ 50
+#define MIN_FREQ 200
 
 typedef BYTE hash_t[SHA256_BLOCK_SIZE];
 
