@@ -112,7 +112,7 @@ void dictionary_search(char *dict, int len) {
     char c;
     while((c = fgetc(fp)) != EOF) {
         if (c == '\r' || c == '\n') {
-            if (len >= 0 && strlen(word) == len) {
+            if (len < 0 || strlen(word) == len) {
                 check((BYTE *)word);
             }
             memset(word, 0, strlen(word));
