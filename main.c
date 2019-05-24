@@ -88,7 +88,7 @@ void read_hashes(char *hshfile) {
             max_hashes *= 2;
             hashes = realloc(hashes, max_hashes * sizeof(hash_t));
         }
-        if (fread(hashes[num_hashes], 1, sizeof(hash_t), fp) <= 0) {
+        if (fread(hashes[num_hashes], 1, sizeof(hash_t), fp) != sizeof(hash_t)) {
             break;
         }
         num_hashes++;
