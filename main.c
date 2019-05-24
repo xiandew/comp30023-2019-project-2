@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 
     // search for passwords of 6 length
     // dictionary search
-    // dictionary_search(DICTIONARY, PWD6_LENGTH);
+    dictionary_search(DICTIONARY, PWD6_LENGTH);
 
     // small range exhaustive search
     small_range_search(PWD6_LENGTH);
