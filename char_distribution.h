@@ -13,25 +13,20 @@
 
 #define BUFFER_SIZE 2048
 
-typedef struct {
-    char c;
-    int f;
-} charfreq_t;
+// ASCII bounds
+#define LOWER 32
+#define UPPER 126
+#define NUM_ASCII UPPER - LOWER + 1
 
-typedef struct {
-    char c;
-    // max number of neighbours
-    int max_nb;
-    // number of neighbours
-    int n_nb;
-    // neighbours
-    charfreq_t *nb;
-} chardist_t;
+// minimum frequency of a char appearing next to another char for a word to be
+// good guess
+#define MIN_FREQ 75
+
+typedef int chardist_t[NUM_ASCII][NUM_ASCII];
 
 void get_char_dist(char *dict);
-int check_char_dist(char *guess, int freq);
-void free_char_dist();
+int check_char_dist(char *guess, int len);
 
-extern char *dict_chars;
+extern char dict_chars[BUFFER_SIZE];
 
 #endif
